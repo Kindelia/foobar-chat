@@ -16,29 +16,35 @@ function App() {
   // - gets the last N messages that satisfy the selected filter
   // - currently the API doesn't support tag queries, so we just get it all
   useEffect(() => {
+    var cruel_pooler = null;
+
     async function load_new_messages() {
+      //console.log("loading messages");
       // FIXME: https://stackoverflow.com/questions/54676966/push-method-in-react-hooks-usestate
       //        /\ claims the best way to push to an array is by cloning it fully
       var old_message_count = messages.value.length;
       var new_message_count = await api.count();
+      //console.log("new_message_count = " + new_message_count);
       var message_loaders = [];
       for (var id = old_message_count; id < new_message_count; ++id) {
         message_loaders.push(api.load(id));
       }
       var new_messages = await Promise.all(message_loaders);
-      for (var new_message of new_messages) {
-        messages.value.push(new_message);
+      for (var id = old_message_count; id < new_message_count; ++id) {
+        messages.value[id] = new_messages[id - old_message_count];
       }
-      console.log("added " + new_messages.length + " messages");
+      if (new_messages.length > 0) {
+        console.log("added " + new_messages.length + " messages");
+      }
       setMessages({value: messages.value});
+      cruel_pooler = setTimeout(async () => load_new_messages(), 100);
     }
+    load_new_messages();
 
-    var cruel_pooler = setInterval(async () => {
-      await load_new_messages();
-    }, 100);
-
-    return () => clearInterval(cruel_pooler);
+    return () => clearTimeout(cruel_pooler);
   });
+
+
 
   // Tags Menu
   // ---------
@@ -100,7 +106,7 @@ function App() {
   // Messages
   // --------
 
-  function Message(message) {
+  function Message(id, message) {
     function format_time(time) {
       return new Date(time).toISOString().substring(0,19).replace("T", " ");
     }
@@ -122,7 +128,7 @@ function App() {
       "color": "#404040",
     };
 
-    return <div key={String(message.time)} style={message_style}>
+    return <div key={id} style={message_style}>
       <div style={user_style}>
         <div>{message.user}</div>
         <div>{format_time(message.time)}</div>
@@ -147,13 +153,14 @@ function App() {
     };
 
     var message_elems = [];
-    for (var message of messages.value) {
+    for (var id = 0; id < messages.value.length; ++id) {
+      var message = messages.value[id];
       var show = true;
       for (var tag of tags.value) {
         show = show && (message.text.split(" ").indexOf(tag) !== -1);
       }
       if (show) {
-        message_elems.push(Message(message));
+        message_elems.push(Message(id, message));
       }
     }
     message_elems.reverse();
