@@ -27,12 +27,12 @@ function App() {
       var new_message_count = await api.count();
       var must_load = new_message_count - old_message_count;
       if (must_load > 0) {
-        //console.log("- loading " + must_load);
+        console.log("- loading " + must_load);
         var new_messages = await api.load(old_message_count, new_message_count);
         for (var id = old_message_count; id < new_message_count; ++id) {
           messages.value[id] = new_messages[id - old_message_count];
         }
-        //console.log("- loaded " + new_messages.length + " messages");
+        console.log("- loaded " + new_messages.length + " messages");
         setMessages({value: messages.value});
       }
       cruel_pooler = setTimeout(() => load_new_messages(), 100);

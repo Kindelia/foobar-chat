@@ -1,6 +1,19 @@
 // TODO: optimize message stream / websocket
 // TODO: index by hashtags, extend API
 
+// id -> texto
+//db.get("000000000") -> mensagem
+
+// hash/numero -> id
+//db.get("test/0") -> "00000000"
+//db.get("test/3000") -> "0816808" 
+
+//banco de dados:
+//- pegar o texto da mensagem pelo id dela
+//- pegar o id da enésima mensagem em um hashtag
+//- pegar a contagem total de mensagens globais
+//- pegar a contagem total de mensagens em um hashtag
+
 var express = require("express");
 var app = express();
 var cors = require("cors");
