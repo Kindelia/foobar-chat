@@ -2,15 +2,12 @@ export default function new_api(url = "http://127.0.0.1:1337/api/v0") {
 
   var options = body => ({
     method: "POST",
-    mode: "cors",
-    cache: "no-cache",
     headers: {"Content-Type": "application/json"},
-    redirect: "follow",
-    referrerPolicy: "no-referrer",
     body: JSON.stringify(body)
   });
 
   async function request(func, args) {
+    console.log("fetch", url+"/"+func, JSON.stringify(options(args)));
     var resp = await fetch(url + "/" + func, options(args));
     var body = JSON.parse(await resp.text());
     switch (body.$) {
@@ -28,8 +25,8 @@ export default function new_api(url = "http://127.0.0.1:1337/api/v0") {
     return await request("post", {user, text});
   }
 
-  async function load(id) {
-    return await request("load", {id: String(id)});
+  async function load(from, to) {
+    return await request("load", {from: String(from), to: String(to)});
   }
 
   return {

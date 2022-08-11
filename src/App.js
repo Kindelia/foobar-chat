@@ -4,7 +4,7 @@ import logo from "./logo.svg";
 import { useState, useEffect } from "react";
 
 // TODO: get env var
-var api = new_api("http://kindelia.org:1337/api/v0");
+var api = new_api("http://kindelia.org:1339/api/v0");
 
 function App() {
 
@@ -19,25 +19,20 @@ function App() {
     var cruel_pooler = null;
 
     async function load_new_messages() {
-      //console.log("loading messages");
+      console.log("loading messages");
       // FIXME: https://stackoverflow.com/questions/54676966/push-method-in-react-hooks-usestate
       //        /\ claims the best way to push to an array is by cloning it fully
       var old_message_count = messages.value.length;
+      console.log("- old_message_count", old_message_count);
       var new_message_count = await api.count();
-      //console.log("new_message_count = " + new_message_count);
-      var message_loaders = [];
-      for (var id = old_message_count; id < new_message_count; ++id) {
-        message_loaders.push(api.load(id));
-      }
-      var new_messages = await Promise.all(message_loaders);
+      console.log("- new_message_count", new_message_count);
+      var new_messages = await api.load(old_message_count, new_message_count);
       for (var id = old_message_count; id < new_message_count; ++id) {
         messages.value[id] = new_messages[id - old_message_count];
       }
-      if (new_messages.length > 0) {
-        console.log("added " + new_messages.length + " messages");
-      }
+      console.log("- loaded " + new_messages.length);
       setMessages({value: messages.value});
-      cruel_pooler = setTimeout(async () => load_new_messages(), 100);
+      cruel_pooler = setTimeout(() => load_new_messages(), 200);
     }
     load_new_messages();
 

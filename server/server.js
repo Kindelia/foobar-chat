@@ -38,10 +38,16 @@ function valid_load_query(lq) {
   if (typeof lq !== "object") {
     return false;
   }
-  if (typeof lq.id !== "string") {
+  if (typeof lq.from !== "string") {
     return false;
   }
-  if (isNaN(Number(lq.id))) {
+  if (typeof lq.to !== "string") {
+    return false;
+  }
+  if (isNaN(Number(lq.from))) {
+    return false;
+  }
+  if (isNaN(Number(lq.to))) {
     return false;
   }
   return true;
@@ -133,18 +139,23 @@ app.post("/api/v0/load", async function(req, res) {
 
   // Validates load query
   if (!valid_load_query(lq)) {
-    res.send(JSON.stringify({$: "fail", err: "Message id must be a decimal string."}));
+    res.send(JSON.stringify({$: "fail", err: "Message from/to must be a decimal strings."}));
     return;
   }
 
   // Loads message 
-  let msg = await load_message(Number(lq.id));
-  if (!msg) {
-    res.send(JSON.stringify({$: "fail", err: "Couldn't load message."}));
-    return;
+  
+  var msgs = [];
+  for (var id = lq.from; id < lq.to; ++id) {
+    var msg = await load_message(Number(id));
+    if (!msg) {
+      res.send(JSON.stringify({$: "fail", err: "Couldn't load messages."}));
+    } else {
+      msgs.push(msg);
+    }
   }
 
-  res.send(JSON.stringify({$: "done", val: msg}));
+  res.send(JSON.stringify({$: "done", val: msgs}));
 });
 
 app.post("/api/v0/count", async function(req, res) {
