@@ -7,7 +7,6 @@ export default function new_api(url = "http://127.0.0.1:1337/api/v0") {
   });
 
   async function request(func, args) {
-    console.log("fetch", url+"/"+func, JSON.stringify(options(args)));
     var resp = await fetch(url + "/" + func, options(args));
     var body = JSON.parse(await resp.text());
     switch (body.$) {

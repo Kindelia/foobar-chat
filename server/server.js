@@ -144,7 +144,6 @@ app.post("/api/v0/load", async function(req, res) {
   }
 
   // Loads message 
-  
   var msgs = [];
   for (var id = lq.from; id < lq.to; ++id) {
     var msg = await load_message(Number(id));
